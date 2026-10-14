@@ -1,0 +1,148 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "NEfnZJr-_OMj",
+        "outputId": "8629ac0e-c121-4958-ca09-6c068735bf58"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\u001b[?25l   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m0.0/143.7 kB\u001b[0m \u001b[31m?\u001b[0m eta \u001b[36m-:--:--\u001b[0m\r\u001b[2K   \u001b[91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[91m╸\u001b[0m \u001b[32m143.4/143.7 kB\u001b[0m \u001b[31m5.4 MB/s\u001b[0m eta \u001b[36m0:00:01\u001b[0m\r\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m143.7/143.7 kB\u001b[0m \u001b[31m3.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+            "\u001b[?25h"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install groq transformers -q"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.colab import userdata\n",
+        "from groq import Groq\n",
+        "import json\n"
+      ],
+      "metadata": {
+        "id": "6GdkMKdy_dpy"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "api_key = userdata.get(\"GROQ_API_KEY\")\n",
+        "client = Groq(api_key=api_key)\n"
+      ],
+      "metadata": {
+        "id": "U7b6dZg9_hqI"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Prompt for JSON generation\n",
+        "\n",
+        "prompt = \"\"\"\n",
+        "Create a valid JSON dataset for three books.\n",
+        "\n",
+        "Each book must contain:\n",
+        "- title\n",
+        "- author\n",
+        "- publication_year\n",
+        "\n",
+        "Return ONLY valid JSON.\n",
+        "Do not add any explanation or extra text.\n",
+        "\"\"\"\n",
+        "\n",
+        "response = client.chat.completions.create(\n",
+        "    model=\"llama-3.3-70b-versatile\",\n",
+        "    messages=[\n",
+        "        {\"role\": \"user\", \"content\": prompt}\n",
+        "    ]\n",
+        ")\n",
+        "\n",
+        "json_text = response.choices[0].message.content\n",
+        "\n",
+        "print(\"========== Generated JSON ==========\\n\")\n",
+        "print(json_text)\n",
+        "\n",
+        "print(\"\\n========== Validation ==========\\n\")\n",
+        "\n",
+        "try:\n",
+        "    data = json.loads(json_text)\n",
+        "    print(\"✅ JSON is valid.\")\n",
+        "    print(\"\\nNumber of books:\", len(data[\"books\"]))\n",
+        "except Exception as e:\n",
+        "    print(\"❌ JSON is not valid.\")\n",
+        "    print(e)\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1jtWuYM4_nyY",
+        "outputId": "2cff1353-f378-4c09-ee65-a25f8a1ae653"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "========== Generated JSON ==========\n",
+            "\n",
+            "[\n",
+            "  {\n",
+            "    \"title\": \"Book 1\",\n",
+            "    \"author\": \"John Doe\",\n",
+            "    \"publication_year\": 2010\n",
+            "  },\n",
+            "  {\n",
+            "    \"title\": \"Book 2\",\n",
+            "    \"author\": \"Jane Smith\",\n",
+            "    \"publication_year\": 2015\n",
+            "  },\n",
+            "  {\n",
+            "    \"title\": \"Book 3\",\n",
+            "    \"author\": \"Bob Johnson\",\n",
+            "    \"publication_year\": 2020\n",
+            "  }\n",
+            "]\n",
+            "\n",
+            "========== Validation ==========\n",
+            "\n",
+            "✅ JSON is valid.\n",
+            "❌ JSON is not valid.\n",
+            "list indices must be integers or slices, not str\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
